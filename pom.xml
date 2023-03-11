@@ -16,6 +16,7 @@
     <skipITs>true</skipITs>
     <surefire-plugin.version>3.0.0-M7</surefire-plugin.version>
     <debezium.version>2.1.1.Final</debezium.version>
+    <hamcrest.version>2.1</hamcrest.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -54,7 +55,8 @@
     <dependency>
       <groupId>org.hamcrest</groupId>
       <artifactId>hamcrest</artifactId>
-      <version>2.1</version>
+      <version>${hamcrest.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.kafka</groupId>
