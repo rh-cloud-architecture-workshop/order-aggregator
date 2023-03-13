@@ -1,8 +1,10 @@
 package org.globex.retail.order.aggregate.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 public class AggregatedOrder {
 
@@ -12,8 +14,9 @@ public class AggregatedOrder {
     @JsonProperty("customer")
     private String customer;
 
-    @JsonProperty("timestamp")
-    private long timestamp;
+    @JsonProperty("date")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "UTC")
+    private Instant date;
 
     @JsonProperty("total")
     private Double orderTotal;
@@ -26,8 +29,8 @@ public class AggregatedOrder {
         return customer;
     }
 
-    public long getTimestamp() {
-        return timestamp;
+    public Instant getDate() {
+        return date;
     }
 
     public double getOrderTotal() {
@@ -37,7 +40,7 @@ public class AggregatedOrder {
     public AggregatedOrder addLineItem(OrderAndLineItem orderAndLineItem) {
         this.orderId = orderAndLineItem.getOrder().getOrderId();
         this.customer = orderAndLineItem.getOrder().getCustomer();
-        this.timestamp = orderAndLineItem.getOrder().getTimestamp();
+        this.date = Instant.ofEpochMilli(orderAndLineItem.getOrder().getTimestamp()/1000);
         if (this.orderTotal == null) {
             this.orderTotal = 0.0;
         }

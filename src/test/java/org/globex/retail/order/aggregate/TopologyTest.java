@@ -2,7 +2,9 @@ package org.globex.retail.order.aggregate;
 
 import io.quarkus.kafka.client.serialization.ObjectMapperDeserializer;
 import io.quarkus.test.junit.QuarkusTest;
+import io.vertx.core.json.JsonObject;
 import org.apache.kafka.common.serialization.LongDeserializer;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.kafka.streams.*;
 import org.apache.kafka.streams.test.TestRecord;
@@ -30,7 +32,7 @@ public class TopologyTest {
 
     TestInputTopic<String, String> lineItemChangeEventTopic;
 
-    TestOutputTopic<Long, AggregatedOrder> aggregatedOrderTopic;
+    TestOutputTopic<Long, String> aggregatedOrderTopic;
 
     @BeforeEach
     void setup() {
@@ -54,7 +56,7 @@ public class TopologyTest {
         aggregatedOrderTopic = testDriver.createOutputTopic(
                 "order.aggregated",
                 new LongDeserializer(),
-                new ObjectMapperDeserializer<>(AggregatedOrder.class)
+                new StringDeserializer()
         );
     }
 
@@ -156,20 +158,22 @@ public class TopologyTest {
         lineItemChangeEventTopic.pipeInput(lineItemKey1, lineItemValue1);
         lineItemChangeEventTopic.pipeInput(lineItemKey2, lineItemValue2);
 
-        TestRecord<Long, AggregatedOrder> record = aggregatedOrderTopic.readRecord();
+        TestRecord<Long, String> record = aggregatedOrderTopic.readRecord();
         assertThat(record, notNullValue());
         assertThat(record.getKey(), is(73L));
-        assertThat(record.getValue().getOrderId(), is(73L));
-        assertThat(record.getValue().getCustomer(), is("zcole"));
-        assertThat(record.getValue().getTimestamp(), is(1678479258884000L));
-        assertThat(record.getValue().getOrderTotal(), is(13.50));
+        JsonObject recordAsJson = new JsonObject(record.getValue());
+        assertThat(recordAsJson.getLong("orderId"), is(73L));
+        assertThat(recordAsJson.getString("customer"), is("zcole"));
+        assertThat(recordAsJson.getString("date"), is("2023-03-10T20:14:18.884+0000"));
+        assertThat(recordAsJson.getDouble("total"), is(13.50));
 
-        TestRecord<Long, AggregatedOrder> record2 = aggregatedOrderTopic.readRecord();
+        TestRecord<Long, String> record2 = aggregatedOrderTopic.readRecord();
         assertThat(record2, notNullValue());
         assertThat(record2.getKey(), is(73L));
-        assertThat(record2.getValue().getOrderId(), is(73L));
-        assertThat(record2.getValue().getCustomer(), is("zcole"));
-        assertThat(record2.getValue().getTimestamp(), is(1678479258884000L));
-        assertThat(record2.getValue().getOrderTotal(), is(16.25));
+        JsonObject recordAsJson2 = new JsonObject(record2.getValue());
+        assertThat(recordAsJson2.getLong("orderId"), is(73L));
+        assertThat(recordAsJson2.getString("customer"), is("zcole"));
+        assertThat(recordAsJson2.getString("date"), is("2023-03-10T20:14:18.884+0000"));
+        assertThat(recordAsJson2.getDouble("total"), is(16.25));
     }
 }
