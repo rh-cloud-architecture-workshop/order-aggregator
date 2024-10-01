@@ -10,6 +10,9 @@ public class Order {
     @JsonProperty("customer_id")
     private String customer;
 
+    @JsonProperty("order_status")
+    private String orderStatus;
+
     @JsonProperty("order_ts")
     private long timestamp;
 
@@ -19,6 +22,10 @@ public class Order {
 
     public String getCustomer() {
         return customer;
+    }
+
+    public String getOrderStatus() {
+        return orderStatus;
     }
 
     public long getTimestamp() {
